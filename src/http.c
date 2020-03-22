@@ -94,6 +94,7 @@ void do_request(void *ptr) {
             goto err;
         }
 
+        // 动态控制输出字符序列的长度
         log_info("method == %.*s", (int)(r->method_end - r->request_start), (char *)r->request_start);
         log_info("uri == %.*s", (int)(r->uri_end - r->uri_start), (char *)r->uri_start);
 
