@@ -155,6 +155,5 @@ const char *get_shortmsg_from_status_code(int status_code) {
         return "Not Found";
     }
 
-
     return "Unknown";
 }

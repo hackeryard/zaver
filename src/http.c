@@ -151,7 +151,7 @@ void do_request(void *ptr) {
             free(out);
             goto close;
         }
-        free(out); // free http reponse sturct
+        free(out); // free http reponse sturct 下次会再创建
     }
 
     struct epoll_event event;
@@ -245,10 +245,12 @@ static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t 
     const char *dot_pos = strrchr(filename, '.');
     file_type = get_file_type(dot_pos);
 
+    // HTTP status code
     sprintf(header, "HTTP/1.1 %d %s\r\n", out->status, get_shortmsg_from_status_code(out->status));
 
     if (out->keep_alive) {
         sprintf(header, "%sConnection: keep-alive\r\n", header);
+        // timeout以秒为单位
         sprintf(header, "%sKeep-Alive: timeout=%d\r\n", header, TIMEOUT_DEFAULT);
     }
 
@@ -263,6 +265,7 @@ static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t 
     sprintf(header, "%sServer: Zaver\r\n", header);
     sprintf(header, "%s\r\n", header);
 
+    // 返回响应header
     n = (size_t)rio_writen(fd, header, strlen(header));
     check(n == strlen(header), "rio_writen error, errno = %d", errno);
     if (n != strlen(header)) {
@@ -271,7 +274,7 @@ static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t 
     }
 
     if (!out->modified) {
-        goto out;
+        goto out; // 直接304 所以不用发送文件内容
     }
 
     // 返回文件内容
