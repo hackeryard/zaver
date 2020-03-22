@@ -52,7 +52,7 @@ void do_request(void *ptr) {
     int rc, n;
     char filename[SHORTLINE];
     struct stat sbuf;
-    ROOT = r->root;
+    ROOT = r->root; // 不同的监听端口 可以对应不同的www家目录
     char *plast = NULL;
     size_t remain_size;
 
@@ -77,10 +77,12 @@ void do_request(void *ptr) {
                 goto err;
             }
             break; // read时发生EAGAIN 则表明这次事件没有更多的信息可读了
+            // 此时跳出循环 处理epoll_wait返回的下一个事件
             // 在请求的读取阶段 每次读取一段 就会parse_line
         }
 
         // read时只更新last 在parse时更新pos
+        // last位置代表下次read的起始地址 其前一个位置是已缓存的最后一位
         r->last += n;
         // 发生覆盖
         check(r->last - r->pos < MAX_BUF, "request buffer overflow!");
@@ -149,8 +151,7 @@ void do_request(void *ptr) {
             free(out);
             goto close;
         }
-        free(out);
-
+        free(out); // free http reponse sturct
     }
 
     struct epoll_event event;
@@ -158,6 +159,7 @@ void do_request(void *ptr) {
     event.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
 
     zv_epoll_mod(r->epfd, r->fd, &event);
+    // 应对意外断线情况下 服务器减少无用连接的资源占用
     zv_add_timer(r, TIMEOUT_DEFAULT, zv_http_close_conn);
     return;
 
@@ -171,6 +173,7 @@ static void parse_uri(char *uri, int uri_length, char *filename, char *querystri
     check(uri != NULL, "parse_uri: uri is NULL");
     uri[uri_length] = '\0';
 
+    // /index.html?a=1
     char *question_mark = strchr(uri, '?');
     int file_length;
     if (question_mark) {
@@ -271,6 +274,7 @@ static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t 
         goto out;
     }
 
+    // 返回文件内容
     int srcfd = open(filename, O_RDONLY, 0);
     check(srcfd > 2, "open error");
     // can use sendfile

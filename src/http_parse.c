@@ -8,6 +8,7 @@
 #include "http_parse.h"
 #include "error.h"
 
+// 存在请求行未解析完的情况
 int zv_http_parse_request_line(zv_http_request_t *r) {
     u_char ch, *p, *m;
     size_t pi;
@@ -275,12 +276,13 @@ int zv_http_parse_request_line(zv_http_request_t *r) {
         } // end switch(state)
     } // end for(pi++)
 
-    r->pos = pi;
+    r->pos = pi; // 未比较完成，则pi必然为r-last，所以不用pi+1
     r->state = state;
 
     return ZV_AGAIN;
 
 // 解析完成
+// 注意done是在for内部完成 所以pi+1
 done:
 
     r->pos = pi + 1;
@@ -320,6 +322,7 @@ int zv_http_parse_request_body(zv_http_request_t *r) {
         ch = *p;
 
         switch (state) {
+        // 起始状态
         case sw_request_line_done:
             if (ch == CR || ch == LF) {
                 break;
@@ -328,6 +331,7 @@ int zv_http_parse_request_body(zv_http_request_t *r) {
             r->cur_header_key_start = p;
             state = sw_key;
             break;
+        // key  :  value\r\n
         case sw_key:
             if (ch == ' ') {
                 r->cur_header_key_end = p;
@@ -392,6 +396,7 @@ int zv_http_parse_request_body(zv_http_request_t *r) {
             if (ch == CR) {
                 state = sw_crlfcr;
             } else {
+                // 下一个key-value
                 r->cur_header_key_start = p;
                 state = sw_key;
             }

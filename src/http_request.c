@@ -65,6 +65,7 @@ void zv_http_handle_header(zv_http_request_t *r, zv_http_out_t *o) {
     zv_http_header_handle_t *header_in;
     int len;
 
+    // 遍历header list
     list_for_each(pos, &(r->list)) {
         hd = list_entry(pos, zv_http_header_t, list);
         /* handle */
@@ -74,7 +75,7 @@ void zv_http_handle_header(zv_http_request_t *r, zv_http_out_t *o) {
             header_in++) {
             if (strncmp(hd->key_start, header_in->name, hd->key_end - hd->key_start) == 0) {
 
-                //debug("key = %.*s, value = %.*s", hd->key_end-hd->key_start, hd->key_start, hd->value_end-hd->value_start, hd->value_start);
+                debug("key = %.*s, value = %.*s", hd->key_end - hd->key_start, hd->key_start, hd->value_end - hd->value_start, hd->value_start);
                 len = hd->value_end - hd->value_start;
                 (*(header_in->handler))(r, o, hd->value_start, len);
                 break;
