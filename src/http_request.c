@@ -75,7 +75,7 @@ void zv_http_handle_header(zv_http_request_t *r, zv_http_out_t *o) {
             header_in++) {
             if (strncmp(hd->key_start, header_in->name, hd->key_end - hd->key_start) == 0) {
 
-                debug("key = %.*s, value = %.*s", hd->key_end - hd->key_start, hd->key_start, hd->value_end - hd->value_start, hd->value_start);
+                debug("key = %.*s, value = %.*s", (int)(hd->key_end - hd->key_start), (char *)hd->key_start, (int)(hd->value_end - hd->value_start), (char *)hd->value_start);
                 len = hd->value_end - hd->value_start;
                 (*(header_in->handler))(r, o, hd->value_start, len);
                 break;
