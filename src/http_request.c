@@ -68,14 +68,17 @@ void zv_http_handle_header(zv_http_request_t *r, zv_http_out_t *o) {
     // 遍历header list
     list_for_each(pos, &(r->list)) {
         hd = list_entry(pos, zv_http_header_t, list);
-        /* handle */
 
+        /* handle */
         for (header_in = zv_http_headers_in;
             strlen(header_in->name) > 0;
             header_in++) {
+
+            debug("key = %.*s, value = %.*s", (int)(hd->key_end - hd->key_start), (char *)hd->key_start, (int)(hd->value_end - hd->value_start), (char *)hd->value_start);
+
             if (strncmp(hd->key_start, header_in->name, hd->key_end - hd->key_start) == 0) {
 
-                debug("key = %.*s, value = %.*s", (int)(hd->key_end - hd->key_start), (char *)hd->key_start, (int)(hd->value_end - hd->value_start), (char *)hd->value_start);
+                debug("compared key = %.*s, value = %.*s", (int)(hd->key_end - hd->key_start), (char *)hd->key_start, (int)(hd->value_end - hd->value_start), (char *)hd->value_start);
                 len = hd->value_end - hd->value_start;
                 (*(header_in->handler))(r, o, hd->value_start, len);
                 break;
