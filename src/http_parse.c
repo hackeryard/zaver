@@ -27,10 +27,14 @@ int zv_http_parse_request_line(zv_http_request_t *r) {
         sw_first_minor_digit,
         sw_minor_digit,
         sw_spaces_after_digit,
-        sw_almost_done
+        sw_almost_done,
+        sw_request_line_done
     } state;
 
     state = r->state; // keep state in request struct
+    if(state == sw_request_line_done) { //避免重复解析
+        return ZV_OK;
+    }
 
     // log_info("ready to parese request line, start = %d, last= %d", (int)r->pos, (int)r->last);
     for (pi = r->pos; pi < r->last; pi++) {
@@ -261,10 +265,13 @@ int zv_http_parse_request_line(zv_http_request_t *r) {
             r->request_end = p - 1;
             switch (ch) {
             case LF:
+                r->state = sw_request_line_done;
                 goto done;
             default:
                 return ZV_HTTP_PARSE_INVALID_REQUEST;
             }
+        case sw_request_line_done:
+            break;
         } // end switch(state)
     } // end for(pi++)
 
@@ -282,7 +289,7 @@ done:
         r->request_end = p;
     }
 
-    r->state = sw_start; // 为何要置位
+    // r->state = sw_start; // 为何要置位
 
     return ZV_OK;
 }
@@ -292,7 +299,7 @@ int zv_http_parse_request_body(zv_http_request_t *r) {
     size_t pi;
 
     enum {
-        sw_start = 0,
+        sw_request_line_done = 15,
         sw_key,
         sw_spaces_before_colon,
         sw_spaces_after_colon,
@@ -303,7 +310,7 @@ int zv_http_parse_request_body(zv_http_request_t *r) {
     } state;
 
     state = r->state;
-    check(state == 0, "state should be 0");
+    // check(state == 0, "state should be 0");
 
     //log_info("ready to parese request body, start = %d, last= %d", r->pos, r->last);
 
@@ -313,7 +320,7 @@ int zv_http_parse_request_body(zv_http_request_t *r) {
         ch = *p;
 
         switch (state) {
-        case sw_start:
+        case sw_request_line_done:
             if (ch == CR || ch == LF) {
                 break;
             }
@@ -409,7 +416,7 @@ int zv_http_parse_request_body(zv_http_request_t *r) {
 done:
     r->pos = pi + 1;
 
-    r->state = sw_start;
+    // r->state = sw_start;
 
     return ZV_OK;
 }
