@@ -118,6 +118,7 @@ void do_request(void *ptr) {
             exit(1);
         }
 
+        // 构造响应结构体zv_http_out_t
         rc = zv_init_out_t(out, fd);
         check(rc == ZV_OK, "zv_init_out_t");
 
@@ -144,8 +145,14 @@ void do_request(void *ptr) {
             out->status = ZV_HTTP_OK;
         }
 
-        serve_static(fd, filename, sbuf.st_size, out);
+        // 单纯对GET处理 TODO：支持HEAD POST 同时GET也能用CGI支持动态内容
+        if(r->method == ZV_HTTP_GET) {
+            serve_static(fd, filename, sbuf.st_size, out);
+        }
 
+        // ZV_HTTP_HEAD pass
+
+        // 发送响应后 考虑是否关闭
         if (!out->keep_alive) {
             log_info("no keep_alive! ready to close");
             free(out);

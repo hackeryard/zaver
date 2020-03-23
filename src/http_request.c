@@ -130,6 +130,7 @@ static int zv_http_process_if_modified_since(zv_http_request_t *r, zv_http_out_t
 
     double time_diff = difftime(out->mtime, client_time);
     // 相差的秒数：当前文件的时间-客户端要求的时间
+    // fixed bug
     if (time_diff < 1e-6) {
         log_info("content not modified after clienttime");
         /* Not modified */
