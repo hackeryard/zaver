@@ -69,12 +69,12 @@ void zv_http_handle_header(zv_http_request_t *r, zv_http_out_t *o) {
     list_for_each(pos, &(r->list)) {
         hd = list_entry(pos, zv_http_header_t, list);
 
+        debug("key = %.*s, value = %.*s", (int)(hd->key_end - hd->key_start), (char *)hd->key_start, (int)(hd->value_end - hd->value_start), (char *)hd->value_start);
+
         /* handle */
         for (header_in = zv_http_headers_in;
             strlen(header_in->name) > 0;
             header_in++) {
-
-            debug("key = %.*s, value = %.*s", (int)(hd->key_end - hd->key_start), (char *)hd->key_start, (int)(hd->value_end - hd->value_start), (char *)hd->value_start);
 
             if (strncmp(hd->key_start, header_in->name, hd->key_end - hd->key_start) == 0) {
 
