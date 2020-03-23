@@ -20,7 +20,7 @@
 static const char* get_file_type(const char *type);
 static void parse_uri(char *uri, int length, char *filename, char *querystring);
 static void do_error(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg);
-static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t *out);
+static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t *out, int method);
 static char *ROOT = NULL;
 
 mime_type_t zaver_mime[] =
