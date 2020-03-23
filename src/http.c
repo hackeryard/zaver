@@ -146,9 +146,7 @@ void do_request(void *ptr) {
         }
 
         // 单纯对GET处理 TODO：支持HEAD POST 同时GET也能用CGI支持动态内容
-        if(r->method == ZV_HTTP_GET) {
-            serve_static(fd, filename, sbuf.st_size, out);
-        }
+        serve_static(fd, filename, sbuf.st_size, out, r->method);
 
         // ZV_HTTP_HEAD pass
 
@@ -243,7 +241,7 @@ static void do_error(int fd, char *cause, char *errnum, char *shortmsg, char *lo
     return;
 }
 
-static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t *out) {
+static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t *out, int method) {
     char header[MAXLINE];
     char buf[SHORTLINE];
     size_t n;
@@ -280,6 +278,10 @@ static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t 
     if (n != strlen(header)) {
         log_err("n != strlen(header)");
         goto out;
+    }
+
+    if (method == ZV_HTTP_HEAD) {
+        go out; // HEAD 所以不用发送文件内容
     }
 
     if (!out->modified) {
