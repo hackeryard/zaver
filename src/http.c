@@ -227,8 +227,9 @@ static void do_error(int fd, char *cause, char *errnum, char *shortmsg, char *lo
     sprintf(header, "%sServer: Zaver\r\n", header);
     sprintf(header, "%sContent-type: text/html\r\n", header);
     sprintf(header, "%sConnection: close\r\n", header);
+    // 先body 才能计算出body的length
     sprintf(header, "%sContent-length: %d\r\n\r\n", header, (int)strlen(body));
-    //log_info("header  = \n %s\n", header);
+    log_info("[do_error]header  = \n %s\n", header);
     rio_writen(fd, header, strlen(header));
     rio_writen(fd, body, strlen(body));
     //log_info("leave clienterror\n");
