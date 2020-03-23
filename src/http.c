@@ -281,7 +281,7 @@ static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t 
     }
 
     if (method == ZV_HTTP_HEAD) {
-        go out; // HEAD 所以不用发送文件内容
+        goto out; // HEAD 所以不用发送文件内容
     }
 
     if (!out->modified) {
