@@ -229,7 +229,7 @@ static void do_error(int fd, char *cause, char *errnum, char *shortmsg, char *lo
     sprintf(header, "%sConnection: close\r\n", header);
     // 先body 才能计算出body的length
     sprintf(header, "%sContent-length: %d\r\n\r\n", header, (int)strlen(body));
-    log_info("[do_error]header  = \n %s\n", header);
+    log_info("[do_error]header  = \n%s\n", header);
     rio_writen(fd, header, strlen(header));
     rio_writen(fd, body, strlen(body));
     //log_info("leave clienterror\n");
@@ -268,6 +268,7 @@ static void serve_static(int fd, char *filename, size_t filesize, zv_http_out_t 
 
     // 返回响应header
     n = (size_t)rio_writen(fd, header, strlen(header));
+    log_info("[reponse_header]header  = \n%s\n", header);
     check(n == strlen(header), "rio_writen error, errno = %d", errno);
     if (n != strlen(header)) {
         log_err("n != strlen(header)");
